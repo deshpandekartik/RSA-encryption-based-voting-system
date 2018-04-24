@@ -22,5 +22,6 @@ class Socket_Sender:
                 else:
                         return server_response
         except Exception as e:
-                print "ERROR ! Socket exception in send_message Socket Sender while sending message to " + str(ip) + " " + str(port_num) + e
+                print "ERROR ! Socket exception in send_message Socket Sender while sending message to " + str(ip) + " " + str(port_num)
+		print e
 		return None

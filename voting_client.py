@@ -18,7 +18,7 @@ else:
         HOST = sys.argv[1]
         PORT = sys.argv[2]
 
-obj = ClientHandler(HOST,PORT)
+obj = Socket_Sender()
 
 print "Connected to server " + str(HOST) + ":" + str(PORT)
 
@@ -30,4 +30,5 @@ while True:
 	regno = raw_input("\nPlease enter your registration number\n")
 
 	if name != "" and regno != "" :
-		# send it to validate	
+		# send it to validate
+		return_message = obj.send_message(HOST, PORT, name + ":" + regno)

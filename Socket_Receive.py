@@ -8,7 +8,7 @@ import socket
 from threading import Lock,Thread
 
 import rsa
-from Socket_Senderimport *
+from Socket_Sender import *
 
 MAX_REQUEST_SIZE = 10000
 
@@ -24,7 +24,7 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 	initialization_status = False
 	voter_database = {}
 	election_database = {}
-	election_candidates = [Tim , Linda]
+	election_candidates = ['Tim' , 'Linda']
 	CERT_DIR = "certs/"
 
 	# handle incoming socket requests from clients
@@ -61,7 +61,7 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 							# insert in database
 							self.put(name,registration_no,public_key)
 						except Exception as e:
-							print "File read error in initialize " + e
+							print e
 					else:
 						print "EXCEPTION ! File " + filename + " not found"
 		else:
