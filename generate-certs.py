@@ -17,15 +17,25 @@ class GnerateCerts:
 
 	def write_tofile(self, private_key, public_key, name_of_file):
 		
-		# write private key
-		filename = self.CERT_DIR +  name_of_file + "_private"
-		priv_file_handle = open(filename, "w+")
-		priv_file_handle.write(private_key.exportKey('PEM'))
+		try:
+			# write private key
+			filename = self.CERT_DIR +  name_of_file + "_private"
+			priv_file_handle = open(filename, "w+")
+			priv_file_handle.write(private_key.exportKey('PEM'))
+			priv_file_handle.close()
+		except IOError:
+	                print "ERROR! The file " + filename + " was not found!"
+			return			
 
-		# write public key
-		filename = self.CERT_DIR + name_of_file + "_public"
-		pub_file_handle = open(filename, "w+")
-                pub_file_handle.write(public_key.exportKey('PEM'))
+		try:
+			# write public key
+			filename = self.CERT_DIR + name_of_file + "_public"
+			pub_file_handle = open(filename, "w+")
+	                pub_file_handle.write(public_key.exportKey('PEM'))
+			pub_file_handle.close()
+		except IOError:
+                        print "ERROR! The file " + filename + " was not found!"
+                        return
 
 
 	def gnerate_cert(self):
@@ -54,7 +64,6 @@ class GnerateCerts:
 				line = line.rstrip()
 				if line.strip() != "":
 					a_line = line.split(' ')
-					print a_line[0] + a_line[1]	
 
 					(public, private) = rsa.newkeys(self.keysize)
 			                self.write_tofile(private,public,a_line[0] + "_" + a_line[1])
