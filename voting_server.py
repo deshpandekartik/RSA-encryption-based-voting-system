@@ -23,7 +23,7 @@ if __name__ == '__main__':
         print('Starting Voting Server on ' + str(HOST) + ':' + str(PORT) + '...')
 
 	try:
-		server = SocketServer.TCPServer((HOST, PORT), Socket_Receive)
+		server = SocketServer.TCPServer((HOST, PORT), Handle_Receive)
                 server.serve_forever()
                 pass
 	except Exception as e: 

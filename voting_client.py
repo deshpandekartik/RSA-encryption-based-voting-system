@@ -9,7 +9,12 @@ import re
 import rsa
 from Socket_Sender import *
 
-MAX_REQUEST_SIZE = 10000
+class Client_Instance:
+	sender = Socket_Sender()
+
+	def validate_voter(self,name, reg_no):
+		
+		 
 
 if len(sys.argv) != 3:
         print "Invalid Parameters: <VotingServer IP> <Port>"
@@ -18,7 +23,7 @@ else:
         HOST = sys.argv[1]
         PORT = sys.argv[2]
 
-obj = Socket_Sender()
+sender = Socket_Sender()
 
 print "Connected to server " + str(HOST) + ":" + str(PORT)
 
@@ -31,4 +36,4 @@ while True:
 
 	if name != "" and regno != "" :
 		# send it to validate
-		return_message = obj.send_message(HOST, PORT, name + ":" + regno)
+		return_message = sender.send_message(HOST, PORT, name + ":" + regno)
