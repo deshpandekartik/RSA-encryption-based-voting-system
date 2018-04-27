@@ -10,6 +10,14 @@ import rsa
 from Socket_Sender import *
 from Voting_Crypto import *
 
+###########################
+# stage 0 : Auth voting client with server
+# stage 1 : Voting someone ( election ), ( check if voter has voted )
+# stage 2 : Vote history
+# stage 3 : Election result
+# stage 4 : Quit 
+###########################
+
 class Client_Instance:
 	sender = Socket_Sender()	# this will handle sending and receiving messages, socket
 	crypto = Voting_Crypto()
@@ -23,6 +31,9 @@ class Client_Instance:
 		print "Connected to server " + str(host) + ":" + str(port)
 
 	def auth_voting_client(self):
+
+		stage = 0
+
 		# console for user input
 		while True:
 
@@ -39,8 +50,9 @@ class Client_Instance:
 					public_vf = self.crypto.load_public("voter_server_public")
                                         private_vf = self.crypto.load_private("voter_server_private")
 				
-					ciphertext = self.crypto.encrypt_message(public_vf,private_cl,name,regno,"")
-					print ciphertext	
+					ciphertext = self.crypto.encrypt_message(public_vf,private_cl,name,regno,stage,"")
+					print ciphertext
+
 				except Exception as e:
 					print "Private key of user " + name + " not found"
 					print e

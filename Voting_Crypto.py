@@ -25,13 +25,13 @@ class Voting_Crypto:
 	###################################################
 	# Encrypt plain text using public key of Voting server
 	# Sign the message using private key of voting client
-	def encrypt_message(self, public_vf, private_cl, name, reg_no, extension):
+	def encrypt_message(self, public_vf, private_cl, name, reg_no, stage, extension):
 
 		try:	
 			# E(pub(VF), name||vnumber)||DS(name)
 		
 			# name || vnumber
-			plaintex = name + ":" + reg_no + ":" + extension
+			plaintex = name + ":" + reg_no + ":" + stage + ":" + extension 
 		
 			# encrypt, E(pub(VF), name||vnumber)
 			ciphertext = b64encode(rsa.encrypt(plaintex, public_vf))
@@ -52,7 +52,6 @@ class Voting_Crypto:
 	# Verify signature using public key of client
 	def decrypt_message(self, private_vf, ciphertext):
 
-		ciphertext = ciphertext.rstrip()	
 		try:
 			# break message into parts, 1st part is cipher text next is the signature
 			signature = ciphertext[344:344+344]
@@ -65,23 +64,27 @@ class Voting_Crypto:
 			
 			name = plaintext[0]
 			reg_no = plaintext[1]
-			extension = plaintext[2]
+			stage = plaintext[2]
+			extension = plaintext[3]
 			
 			public_cl = self.load_public(name + "_" + reg_no + "_" + "public")
 
 			# verify signature first
 			verify = rsa.verify(name, b64decode(signature), public_cl)
 	
+			'''
 			if verify == False:
 				return False
-	
-			return (name,reg_no,extension)
+			'''	
+
+			return (name,reg_no,stage,extension)
 
 		except Exception as e:
 			print "EXCEPTION ! Invalid key, decrypt_message"
 			print e
 			return False
 
+'''
 if __name__ == "__main__":
 	obj = Voting_Crypto ()
 	name = "Alice"
@@ -97,3 +100,4 @@ if __name__ == "__main__":
 	print cip
 	plain = obj.decrypt_message(private_vf,cip)
 	print plain
+'''
