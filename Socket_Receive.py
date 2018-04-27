@@ -10,8 +10,9 @@ from threading import Lock,Thread
 import rsa
 from Socket_Sender import *
 from Electorial_Voting import *
+from Voting_Crypto import *
 
-MAX_REQUEST_SIZE = 1000
+MAX_REQUEST_SIZE = 10000
 
 class Socket_Receive(SocketServer.ThreadingTCPServer):
         def __init__(self, server_address, RequestHandlerClass, FILENAME):
@@ -22,7 +23,12 @@ class Socket_Receive(SocketServer.ThreadingTCPServer):
 class Handle_Receive(SocketServer.BaseRequestHandler):
 	
 	elec_vote = Electorial_Voting()
+	crypto = Voting_Crypto()
+
 	voter_file = "votercli"
+	private_vf = None
+	public_vf = None
+
 
 	# handle incoming socket requests from clients
     	def handle(self):
@@ -30,13 +36,13 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 			#self.initialize(self.server.votingfile)
 			self.elec_vote.initialize(self.voter_file)
 
-        	message = self.request.recv(MAX_REQUEST_SIZE)
-		print message
+			# init private and public key
+			self.public_vf = self.crypto.load_public("voter_server_public")
+                     	self.private_vf = self.crypto.load_private("voter_server_private")
 
-		# check if string in 46 bits encoded
-		try:
-			b64decode(message)
-		except:
-			# first message from voting_client to me
-			a_line = message.split(':')
-			print self.elec_vote.validate_voter(a_line[0],a_line[1])
+        	cipher = self.request.recv(MAX_REQUEST_SIZE)
+		cipher = cipher.replace("\r\n", '')
+		print cipher
+
+		# decrypt this message
+		print self.crypto.decrypt_message(self.private_vf,cipher)
