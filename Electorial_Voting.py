@@ -53,9 +53,11 @@ class Electorial_Voting:
                 else:
                         print "Voter File not found " + self.voter_file
 
-                # initialize election candidates
+                # initialize election candidates	
+		index = 0
                 for candidate in self.election_candidates:
-                        self.election_database[candidate] = 0
+			index = index + 1
+                        self.election_database[candidate] = [index, 0]
 
         def put(self,name,registration_no, public_key):
                 voting_status = False
@@ -79,15 +81,23 @@ class Electorial_Voting:
                 else:
                         return False
 
-        def electionVote(self,registration_no,candidate):
+        def electionVote(self,registration_no,index):
 
                 if self.voter_database[registration_no][2] == True:
                         # has already voted
                         return False
                 else:
+			elec_candidate = None
+			for candidate in self.election_database:
+				if self.election_database[candidate][1] == index:
+					self.election_database[candidate][1] = self.election_database[candidate][1] + 1
+					elec_candidate = candidate
+					break
+			if elec_candidate == False:
+				return False
+			
                         self.voter_database[registration_no][2] = True
-                        self.voter_database[registration_no][3] = candidate
-                        self.election_database[candidate] = self.election_database[candidate] + 1
+                        self.voter_database[registration_no][3] = elec_candidate
                         return True
 
 
@@ -99,3 +109,10 @@ class Electorial_Voting:
                                 return False
 
 		# get the electorial candidate with maximum votes
+
+	def hasVoted(self,registration_no):
+		if self.voter_database[registration_no][2] == True: 
+			return True
+		else:
+			return False
+

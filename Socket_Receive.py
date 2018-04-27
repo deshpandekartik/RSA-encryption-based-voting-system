@@ -22,6 +22,7 @@ class Socket_Receive(SocketServer.ThreadingTCPServer):
 ###########################
 # stage 0 : Auth voting client with server
 # stage 1 : Voting someone ( election ), ( check if voter has voted )
+#	    stage 11 : Vote a candidate ( A or B )
 # stage 2 : Vote history
 # stage 3 : Election result
 # stage 4 : Quit
@@ -51,20 +52,37 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 
 		# decrypt this message
 		plaintex = self.crypto.decrypt_message(self.private_vf,cipher)
-			
-		name = plaintext[0]
-		reg_no = plaintext[1]
-		stage = plaintext[2]
-		extension = plaintext[3]
+
+		status = plaintext[0]			
+		name = plaintext[1]
+		reg_no = plaintext[2]
+		stage = plaintext[3]
+		extension = plaintext[4]
+
+		respnse_success_status = 0
+		resonse_failure_status = 1
 
 		if stage == 0:
 			# auth user
-			if elec_vote.validate_voter(name,reg_no) == True:
-				# reply with a 1 to client
-				
-					
+			if self.elec_vote.validate_voter(name,reg_no) == False or status == False:
+				# Not found in DB or signature verification failed
+				self.request.send(resonse_failure_status)	
+			else:
+				self.request.send(respnse_success_status)	
 		elif stage == 1 :
-
+			# check if client has already voted
+			if self.elec_vote.hasVoted(reg_no) == True:
+				# he already has voted, can't change that
+				self.request.send(resonse_failure_status)		
+			else:
+				self.request.send(respnse_success_status)	
+		elif stage == 11 :
+			# voting a particular candidate
+			if self.elec_vote.electionVote(reg_no,extension) == False:
+				self.request.send(resonse_failure_status)
+			else:
+				self.request.send(respnse_success_status)
+	
 		elif stage == 2 :
 
 		elif stage == 3 :
@@ -72,4 +90,7 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 		else:
 			# Invalid 
 			print "EXCEPTION ! This stage was not supposed to be considered " + plaintext[2]
+
+
+
 

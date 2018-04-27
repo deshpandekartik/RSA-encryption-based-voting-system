@@ -74,15 +74,15 @@ class Voting_Crypto:
 	
 			'''
 			if verify == False:
-				return False
+				return (False,name,reg_no,stage,extension)
 			'''	
 
-			return (name,reg_no,stage,extension)
+			return (True,name,reg_no,stage,extension)
 
 		except Exception as e:
 			print "EXCEPTION ! Invalid key, decrypt_message"
 			print e
-			return False
+			return (False,'','','','')
 
 '''
 if __name__ == "__main__":
