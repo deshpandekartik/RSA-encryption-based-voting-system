@@ -6,6 +6,8 @@ import sys
 import SocketServer
 import socket
 from threading import Lock,Thread
+import time
+
 import rsa
 from Socket_Sender import *
 
@@ -13,18 +15,21 @@ from Socket_Sender import *
 
 class Electorial_Voting:
 
-
         voter_file = "votercli"
         initialization_status = False
         voter_database = {}
         election_database = {}
         election_candidates = ['Tim' , 'Linda']
         CERT_DIR = "certs/"
-
+	
+	persistent_storage = "db/"
+	result_file = "result"
+	history_file = "history"
+	write_to_storage = True
 
         def initialize(self,voterfile_arg):
 
-                initialization_status = True
+                self.initialization_status = True
 
                 self.voter_file = voterfile_arg
 
@@ -62,7 +67,8 @@ class Electorial_Voting:
         def put(self,name,registration_no, public_key):
                 voting_status = False
                 voted_candidate = None
-                self.voter_database[registration_no] = [name, public_key, voting_status, voted_candidate]
+		voting_time = time.asctime( time.localtime(time.time()) )
+                self.voter_database[registration_no] = [name, public_key, voting_status, voted_candidate, voting_time]
 
 
         def get(self,registration_no):
@@ -89,7 +95,7 @@ class Electorial_Voting:
                 else:
 			elec_candidate = None
 			for candidate in self.election_database:
-				if self.election_database[candidate][1] == index:
+				if self.election_database[candidate][0] == index:
 					self.election_database[candidate][1] = self.election_database[candidate][1] + 1
 					elec_candidate = candidate
 					break
@@ -98,8 +104,30 @@ class Electorial_Voting:
 			
                         self.voter_database[registration_no][2] = True
                         self.voter_database[registration_no][3] = elec_candidate
-                        return True
+			voting_time = time.asctime( time.localtime(time.time()) )
+			self.voter_database[registration_no][4] = voting_time
 
+			if self.write_to_storage == True:
+				if not os.path.isdir(self.persistent_storage):
+					# create the directory
+		                        os.makedirs(self.persistent_storage)
+
+				filename = self.persistent_storage + self.result_file
+				file_handle = open(filename, "w+")
+				for candidate in self.election_database:
+					buffer = candidate + " \t " + str(self.election_database[candidate][1]) + "\n"
+					file_handle.write(buffer)
+				file_handle.close()
+
+				filename = self.persistent_storage + self.history_file
+				file_handle = open(filename, "w+")
+				for reg_no in self.voter_database:
+					if self.voter_database[reg_no][2] == True:
+						buffer = str(reg_no) + " \t " + str(self.voter_database[reg_no][4]) + "\n"
+						file_handle.write(buffer)
+				file_handle.close()
+
+			return True
 
         def election_result(self):
 
@@ -108,7 +136,23 @@ class Electorial_Voting:
                         if self.voter_database[reg_no][2] == False:
                                 return False
 
-		# get the electorial candidate with maximum votes
+		# print the result
+
+		max = 0	
+		# find candidate with maximum maximum votes	
+		for candidate in self.election_database:
+			if int(self.election_database[candidate][1]) > max:
+				max = int(self.election_database[candidate][1])
+		
+		winner = ""
+		for candidate in self.election_database:
+			if int(self.election_database[candidate][1]) == max:	
+				winner = winner + candidate + " "
+	
+		print winner + " Win"
+		for candidate in self.election_database:
+               		print candidate + " \t " + str(self.election_database[candidate][1]) + "\n"
+
 
 	def hasVoted(self,registration_no):
 		if self.voter_database[registration_no][2] == True: 

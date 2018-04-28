@@ -26,6 +26,9 @@ class Voting_Crypto:
 	# Encrypt plain text using public key of Voting server
 	# Sign the message using private key of voting client
 	def encrypt_message(self, public_vf, private_cl, name, reg_no, stage, extension):
+		reg_no = str(reg_no)
+		stage = str(stage)
+		extension = str(extension)
 
 		try:	
 			# E(pub(VF), name||vnumber)||DS(name)

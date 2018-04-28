@@ -44,23 +44,28 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 			#self.initialize(self.server.votingfile)
 			self.elec_vote.initialize(self.voter_file)
 
-			# init private and public key
-			self.public_vf = self.crypto.load_public("voter_server_public")
-                     	self.private_vf = self.crypto.load_private("voter_server_private")
+		# init private and public key
+		#public_vf = self.crypto.load_public("voter_server_public")
+              	private_vf = self.crypto.load_private("voter_server_private")
 
         	cipher = self.request.recv(MAX_REQUEST_SIZE)
 
 		# decrypt this message
-		plaintex = self.crypto.decrypt_message(self.private_vf,cipher)
+		plaintext = self.crypto.decrypt_message(private_vf,cipher)
 
-		status = plaintext[0]			
-		name = plaintext[1]
-		reg_no = plaintext[2]
-		stage = plaintext[3]
-		extension = plaintext[4]
+		print plaintext
 
-		respnse_success_status = 0
-		resonse_failure_status = 1
+		status = plaintext[0]
+		name = plaintext[1].strip()
+		reg_no = plaintext[2].strip()
+		stage = int(plaintext[3].strip())
+		extension = plaintext[4].strip()
+
+		respnse_success_status = "0"
+		resonse_failure_status = "1"
+
+		print self.elec_vote.voter_database
+		print self.elec_vote.election_database
 
 		if stage == 0:
 			# auth user
@@ -78,19 +83,21 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 				self.request.send(respnse_success_status)	
 		elif stage == 11 :
 			# voting a particular candidate
+			extension = int(extension)
 			if self.elec_vote.electionVote(reg_no,extension) == False:
 				self.request.send(resonse_failure_status)
 			else:
 				self.request.send(respnse_success_status)
+
+			# check if all candidates have voted, if yes print the result
 	
 		elif stage == 2 :
-
+			pass
 		elif stage == 3 :
-
+			pass
 		else:
 			# Invalid 
-			print "EXCEPTION ! This stage was not supposed to be considered " + plaintext[2]
-
+			print "EXCEPTION ! This stage was not supposed to be considered " + stage
 
 
 

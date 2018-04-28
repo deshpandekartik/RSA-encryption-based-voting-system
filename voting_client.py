@@ -9,6 +9,7 @@ import re
 import rsa
 from Socket_Sender import *
 from Voting_Crypto import *
+from Electorial_Voting import *
 
 ###########################
 # stage 0 : Auth voting client with server
@@ -28,9 +29,8 @@ class Client_Instance:
 	private_cl = None
 	public_vf = None
 	private_vf = None
-	respnse_success_status = 0
-	resonse_failure_status = 1
-	write_to_file = True
+	response_success_status = "0"
+	response_failure_status = "1"
 	
 
 	HOST = None
@@ -63,7 +63,6 @@ class Client_Instance:
 					self.private_cl = self.crypto.load_private(name + "_" + regno + "_" + "private")
 					
 					ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,"")
-					print ciphertext
 
 				except Exception as e:
 					print "Private key of user " + name + " not found"
@@ -71,16 +70,17 @@ class Client_Instance:
 					sys.exit(0)
 					
                 		return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
-				if return_message == self.resonse_failure_status :
-					print "Invalid userID and registration number"
-				else:
+				if return_message == self.response_success_status :
 					break
+				else:
+					print "Invalid userID and registration number"
 
 		self.main_menu(name,regno)
 
 	def main_menu(self,name,regno):
  		
 		while True:
+			print "\n\n"
 			print "Welcome " + name	
 			print "Main menu"
 			print "Please enter a number (1-4)"
@@ -91,79 +91,98 @@ class Client_Instance:
 			print "\n"
 	
 			userinput = raw_input()
-			
-			if userinput == 1:
-				stage = 1
-				extension = ""
-				ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
-			
-				return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
-                                if return_message == self.resonse_failure_status:
-                                        print "ERROR ! You have already voted"
-                                else:
-                                        self.electorate(name,regno)
-	
-			elif userinput == 2:
-				stage = 2			
-				extension = ""
-				ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
-			
-                                return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
-                                if return_message == self.resonse_failure_status:
-                                        print "Invalid userID and registration number"
-                                else:
-                                        break
-			elif userinput == 3:
-				stage = 3		
-				extension = ""
-                                ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
-                                return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
-                                if return_message == self.resonse_failure_status :
-                                        print "Invalid userID and registration number"
-                                else:
-                                        break
-			elif userinput == 4:
-                                print "Good Bye"
-                                sys.exit(0)
-			else:
+			userinput = userinput.strip()
+
+			try: 
+				userinput = int(userinput)
+			except:
 				print "Invalid choice"
+
+			if userinput != "" :
+	
+				try:
+	                                userinput = int(userinput)
+	                        except:
+	                                print "Invalid choice"
+
+				if userinput == 1:
+					stage = 1
+					extension = ""
+					ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
+				
+					return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
+	                                if return_message == self.response_success_status:
+						self.electorate(name,regno)
+					else:
+	                                        print "ERROR ! You have already voted"
+	
+				elif userinput == 2:
+					stage = 2			
+					extension = ""
+					ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
+				
+	                                return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
+	                                if return_message == self.response_success_status:
+						break
+					else:
+	                                        print "Invalid userID and registration number"
+				elif userinput == 3:
+					stage = 3		
+					extension = ""
+	                                ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
+	                                return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
+	                                if return_message == self.response_success_status :
+						break
+					else:
+	                                        print "Invalid userID and registration number"
+				elif userinput == 4:
+                	                print "Good Bye"
+                	                sys.exit(0)
+				else:
+					print "Invalid choice"
 								
 	def electorate(self,name,regno):
 		while True :
 			stage = 11
 			
-			print "Please enter a number ( 1 - " + len(self.elec_vote.election_database) + " ) "
+			print "Please enter a number ( 1 - " + str(len(self.elec_vote.election_database) + 2) + " ) "
 			# get all election candidates to display
 			for candidate in self.elec_vote.election_database:
-				print self.elec_vote.election_database[candidate] + ". " + candidate 
-				last_index = self.elec_vote.election_database[candidate]
-				back_id = self.elec_vote.election_database[candidate] + 1
-				quit_id = back + 1
-			print back_id + ". Back "
-			print quit_id + ". Quit" 
+				print str(self.elec_vote.election_database[candidate][0]) + ". " + candidate 
+				last_index = self.elec_vote.election_database[candidate][0]
+				back_id = last_index + 1
+				quit_id = back_id + 1
+			print str(back_id) + ". Back "
+			print str(quit_id) + ". Quit" 
 			print "\n"		
 
 			userinput = raw_input()
-				
-			if userinput > quit_id or userinput < 1 :
-				print "Invalid option"
-			elif userinput == back_id:
-				break
-			elif back_id == quit_id :
-				print "Good Bye"
-                                sys.exit(0)
-			else:
-				stage = 11
-				extension = userinput
-				ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
-                                return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
-                                if return_message == self.resonse_failure_status :
-                                        print "Something went wrong, while registering your vote"
-                                else:
-                                        print "Vote Registration Success"
-					break
-	
+		
 
+			if userinput != "" :	
+				try:
+	                                userinput = int(userinput)
+	                        except:
+	                                print "Invalid choice"
+	
+				if userinput > quit_id or userinput < 1 :
+					print "Invalid choice"
+				elif userinput == back_id:
+					break
+				elif back_id == quit_id :
+					print "Good Bye"
+	                                sys.exit(0)
+				else:
+					stage = 11
+					extension = userinput
+					ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
+	                                return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
+	                                if return_message == self.response_success_status :
+                                                print "Vote Registration Success"
+                                                break
+					else:
+	                                        print "Something went wrong, while registering your vote"
+	
 if len(sys.argv) != 3:
         print "Invalid Parameters: <VotingServer IP> <Port>"
         sys.exit(0)
