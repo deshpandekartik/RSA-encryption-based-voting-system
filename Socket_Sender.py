@@ -11,7 +11,6 @@ class Socket_Sender:
     # sending messages to server / clients
     def send_message(self, ip, port_num, message):
         try:
-		message = message.replace("\r\n", '')
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((ip, int(port_num)))
                 sock.sendall(message)
@@ -21,7 +20,6 @@ class Socket_Sender:
                         # ERROR ! Empty response, probably the server does not want to send anything
                         return None
                 else:
-			server_response = server_response.replace("\r\n", '')
                         return server_response
         except Exception as e:
                 print "ERROR ! Socket exception in send_message Socket Sender while sending message to " + str(ip) + " " + str(port_num)

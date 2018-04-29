@@ -129,12 +129,12 @@ class Electorial_Voting:
 
 			return True
 
-        def election_result(self):
+        def get_election_result(self):
 
                 # check if all voters have voted in election
                 for reg_no in self.voter_database:
                         if self.voter_database[reg_no][2] == False:
-                                return False
+                                return "False"
 
 		# print the result
 
@@ -149,10 +149,22 @@ class Electorial_Voting:
 			if int(self.election_database[candidate][1]) == max:	
 				winner = winner + candidate + " "
 	
-		print winner + " Win"
+		buffer = winner + " Win \n"
+		resultant = buffer
 		for candidate in self.election_database:
-               		print candidate + " \t " + str(self.election_database[candidate][1]) + "\n"
+               		buffer = candidate + " \t " + str(self.election_database[candidate][1]) + "\n"
+			resultant = resultant + buffer
+		
+		return resultant
 
+	def get_voter_history(self,reg_no):
+
+		resultant = ""
+              	if self.voter_database[reg_no][2] == True:
+                    	buffer = str(reg_no) + " \t " + str(self.voter_database[reg_no][4]) + "\n"
+			resultant = resultant + buffer
+		
+		return resultant
 
 	def hasVoted(self,registration_no):
 		if self.voter_database[registration_no][2] == True: 

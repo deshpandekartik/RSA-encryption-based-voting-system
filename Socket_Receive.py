@@ -50,9 +50,24 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 
         	cipher = self.request.recv(MAX_REQUEST_SIZE)
 
+		# TODO : Remove this part later	
+		####################################
+                obj = Voting_Crypto ()
+                name = "Bob"
+                reg_no = "113880000"
+                public_vf = obj.load_public("voter_server_public")
+                private_vf = obj.load_private("voter_server_private")
+                private_cl = obj.load_private(name + "_" + reg_no + "_" + "private")
+                cip =  obj.encrypt_message(public_vf, private_cl, name, reg_no,"0","")
+		####################################
+
 		# decrypt this message
 		plaintext = self.crypto.decrypt_message(private_vf,cipher)
 
+		# Print both encrypted and decrypted text
+		print "Encrypted cipher text : "
+		print cipher
+		print "Decrypted plain text : "
 		print plaintext
 
 		status = plaintext[0]
@@ -64,8 +79,8 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 		respnse_success_status = "0"
 		resonse_failure_status = "1"
 
-		print self.elec_vote.voter_database
-		print self.elec_vote.election_database
+		#print self.elec_vote.voter_database
+		#print self.elec_vote.election_database
 
 		if stage == 0:
 			# auth user
@@ -90,14 +105,33 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 				self.request.send(respnse_success_status)
 
 			# check if all candidates have voted, if yes print the result
+			if self.elec_vote.get_election_result() != "False":
+				print self.elec_vote.get_election_result()
 	
 		elif stage == 2 :
-			pass
+			# voter history
+			
+			if self.elec_vote.get_voter_history(reg_no) != "False":
+				response = self.elec_vote.get_voter_history(reg_no)
+				response = self.format_string(response)
+			else:
+				response = resonse_failure_status
+			self.request.send(response)
+
 		elif stage == 3 :
-			pass
+			# election result
+
+			if self.elec_vote.get_election_result() != "False":
+                                response =  self.elec_vote.get_election_result()
+				response = self.format_string(response)
+			else:
+				response = resonse_failure_status
+			self.request.send(response)
+
 		else:
 			# Invalid 
 			print "EXCEPTION ! This stage was not supposed to be considered " + stage
 
 
-
+	def format_string(self,inmsg):
+		return "######################################### \n" + inmsg + "#########################################"

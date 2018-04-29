@@ -65,22 +65,28 @@ class Client_Instance:
 					ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,"")
 
 				except Exception as e:
-					print "Private key of user " + name + " not found"
-					print e
-					sys.exit(0)
-					
-                		return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
-				if return_message == self.response_success_status :
-					break
-				else:
 					print "Invalid userID and registration number"
+					#print "Private key of user " + name + " not found"
+					#print e
+					sys.exit(0)
+		
+				if ciphertext == False:
+					print "Invalid userID and registration number"
+					sys.exit(0)	
+				else:
+                			return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
+					if return_message == self.response_success_status :
+						break
+					else:
+						print "Invalid userID and registration number"
+						sys.exit(0)
 
 		self.main_menu(name,regno)
 
 	def main_menu(self,name,regno):
  		
 		while True:
-			print "\n\n"
+			print "\n"
 			print "Welcome " + name	
 			print "Main menu"
 			print "Please enter a number (1-4)"
@@ -122,19 +128,22 @@ class Client_Instance:
 					ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
 				
 	                                return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
-	                                if return_message == self.response_success_status:
-						break
+	                                if return_message == self.response_failure_status or return_message == "":
+						print "No voter has voted yet."
 					else:
-	                                        print "Invalid userID and registration number"
+						print return_message
+
 				elif userinput == 3:
 					stage = 3		
 					extension = ""
 	                                ciphertext = self.crypto.encrypt_message(self.public_vf,self.private_cl,name,regno,stage,extension)
-	                                return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
-	                                if return_message == self.response_success_status :
-						break
-					else:
-	                                        print "Invalid userID and registration number"
+					
+					return_message = self.sender.send_message(self.HOST, self.PORT, ciphertext)
+                                        if return_message == self.response_failure_status or return_message == "":
+                                                print "Voting has not finished yet"
+                                        else:
+                                                print return_message
+
 				elif userinput == 4:
                 	                print "Good Bye"
                 	                sys.exit(0)

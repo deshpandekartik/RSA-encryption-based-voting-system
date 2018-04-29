@@ -38,7 +38,7 @@ class Voting_Crypto:
 		
 			# encrypt, E(pub(VF), name||vnumber)
 			ciphertext = b64encode(rsa.encrypt(plaintex, public_vf))
-		
+	
 			# sign name, DS(name), signed by voter clients private key
 			signature = b64encode(rsa.sign(name, private_cl, "SHA-512"))
 
@@ -75,10 +75,8 @@ class Voting_Crypto:
 			# verify signature first
 			verify = rsa.verify(name, b64decode(signature), public_cl)
 	
-			'''
 			if verify == False:
 				return (False,name,reg_no,stage,extension)
-			'''	
 
 			return (True,name,reg_no,stage,extension)
 

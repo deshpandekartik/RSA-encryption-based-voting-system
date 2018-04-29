@@ -11,13 +11,12 @@ from Socket_Receive import *
 
 if __name__ == '__main__':
         
-	if len(sys.argv) != 3:
-                print "Invalid Parameters: <Port> <VoterClient_File"
+	if len(sys.argv) != 2:
+                print "Invalid Parameters: <Port> "
                 sys.exit(0)
         else:
                 PORT = int(sys.argv[1])
                 HOST = socket.gethostbyname(socket.gethostname())
-                VOTER_FILE = sys.argv[2]
 
 
         print('Starting Voting Server on ' + str(HOST) + ':' + str(PORT) + '...')
