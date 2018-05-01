@@ -135,3 +135,5 @@ class Handle_Receive(SocketServer.BaseRequestHandler):
 
 	def format_string(self,inmsg):
 		return "######################################### \n" + inmsg + "#########################################"
+
+	

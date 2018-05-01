@@ -1,0 +1,13 @@
+# Computer-Security-Final course project
+
+Name - Kartik Deshpande
+Bmail ID - kdeshpa3
+
+- Coded in python
+- Code was compiled and tested on remote machines
+- Used python's Crypto module to implement encryption and decryption
+- Used python's socket server to implement concurrent server
+-Execution 
+
+./vf PORTNUM
+./voter-cli IP-ADDR PORTNUM
